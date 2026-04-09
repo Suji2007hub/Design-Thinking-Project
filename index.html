@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QueueFlow Agent Pro — AI-Powered Hospital Queue</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ═══ TOP NAV ══════════════════════════════════════════════════ -->
+<nav class="topnav">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M3 3h4v4H3V3zm7 0h4v4h-4V3zm7 0h4v4h-4V3zM3 10h4v4H3v-4zm7 0h4v4h-4v-4zm7 0h4v4h-4v-4zM3 17h4v4H3v-4zm7 0h4v4h-4v-4z"/></svg>
+    </div>
+    <span class="logo-name">QueueFlow</span>
+    <span class="logo-ver">AGENT PRO</span>
+  </div>
+  <div class="tabs">
+    <button class="tab" data-s="tv" onclick="go(this,'tv')">📺 TV Display</button>
+    <button class="tab active" data-s="rec" onclick="go(this,'rec')">🖥 Reception</button>
+    <button class="tab" data-s="doc" onclick="go(this,'doc')">👨‍⚕️ Doctors</button>
+    <button class="tab" data-s="admin" onclick="go(this,'admin')">📊 Admin</button>
+  </div>
+  <div class="nav-right">
+    <button class="agent-status-bar" onclick="openAgentDrawer()">
+      <div class="agent-pulse"></div>
+      3 AGENTS ACTIVE
+    </button>
+    <div class="live-dot">LIVE</div>
+  </div>
+</nav>
+
+<!-- ═══ AGENT DRAWER ══════════════════════════════════════════ -->
+<div class="agent-drawer" id="agentDrawer">
+  <div class="agent-drawer-head">
+    <div class="agent-drawer-title">🤖 Agent Control Center</div>
+    <button class="agent-close" onclick="closeAgentDrawer()">✕</button>
+  </div>
+  <div class="agent-tabs">
+    <button class="agent-tab active" onclick="switchAgentTab(this,'logs')">Activity Log</button>
+    <button class="agent-tab" onclick="switchAgentTab(this,'health')">Agent Health</button>
+  </div>
+  <div class="agent-log-panel active" id="agentLogs">
+    <div style="color:var(--t3);font-size:11px;text-align:center;padding:24px">Agent events will appear here...</div>
+  </div>
+  <div class="agent-log-panel" id="agentHealth">
+    <div class="agent-health-grid">
+      <div class="agent-card">
+        <div class="agent-card-head">
+          <div class="agent-card-name">⚡ Smart Priority Booster<span class="agent-card-status status-running" id="priority-agent-status">RUNNING</span></div>
+        </div>
+        <div class="agent-card-desc">Raises the priority of patients who wait too long and moves emergencies to the front of the queue automatically.</div>
+        <div class="agent-metric"><span class="am-label">Priority boosts today</span><span class="am-val" id="amet-priority">0</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-card-head">
+          <div class="agent-card-name">🩺 Doctor Suggestion Agent<span class="agent-card-status status-running" id="doctor-agent-status">RUNNING</span></div>
+        </div>
+        <div class="agent-card-desc">Checks doctor load, skips offline doctors, and suggests the best doctor before assigning each patient.</div>
+        <div class="agent-metric"><span class="am-label">Suggestions today</span><span class="am-val" id="amet-doctor">0</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-card-head">
+          <div class="agent-card-name">📈 Wait Time Predictor<span class="agent-card-status status-running" id="predict-agent-status">RUNNING</span></div>
+        </div>
+        <div class="agent-card-desc">Predicts wait times from queue length and consultation time, then warns when delays get too high.</div>
+        <div class="agent-metric"><span class="am-label">Delay alerts today</span><span class="am-val" id="amet-predict">0</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOAST STACK ════════════════════════════════════════════ -->
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- ═══ TOKEN POPUP ════════════════════════════════════════════ -->
+<div class="popup-overlay" id="popup" onclick="if(event.target===this)closePopup()">
+  <div class="popup-card">
+    <div class="popup-head">
+      <div class="popup-clinic">QUEUEFLOW AGENT PRO</div>
+      <div class="popup-token" id="pop-tok">—</div>
+    </div>
+    <div class="popup-body">
+      <div class="popup-name" id="pop-nm"></div>
+      <div class="popup-wait" id="pop-wait"></div>
+      <div class="popup-ai-note" id="pop-ai"></div>
+      <div class="popup-meta">
+        <div class="popup-meta-item"><div class="pm-val" id="pop-doc-short"></div><div class="pm-lab">Doctor</div></div>
+        <div class="popup-meta-item"><div class="pm-val" id="pop-pos"></div><div class="pm-lab">Queue Position</div></div>
+        <div class="popup-meta-item"><div class="pm-val" id="pop-ewt"></div><div class="pm-lab">Est. Wait</div></div>
+      </div>
+    </div>
+    <div class="popup-footer">
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="closePopup()">OK, Got It</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TV DISPLAY ══════════════════════════════════════════════ -->
+<div id="s-tv" class="tv-screen">
+<div class="tv">
+  <div class="tv-head">
+    <div class="tv-clinic-row">
+      <div class="tv-clinic-icon">🏥</div>
+      <div>
+        <div class="tv-clinic-name">Multi-Specialty Outpatient Clinic</div>
+        <div class="tv-clinic-sub">AI-Powered Queue Management · QueueFlow Agent Pro</div>
+      </div>
+    </div>
+    <div class="tv-time-block">
+      <div class="tv-hms" id="tv-hms">--:--:--</div>
+      <div class="tv-date-str" id="tv-dstr">--</div>
+    </div>
+  </div>
+  <div class="tv-body">
+    <div class="tv-now-panel">
+      <div class="tv-now-eyebrow"><div class="tv-pulse-dot"></div>NOW SERVING</div>
+      <div class="tv-big-token" id="tv-tok">—</div>
+      <div class="tv-patient-name" id="tv-pname">Waiting for next patient</div>
+      <div class="tv-patient-doctor" id="tv-pdoc">—</div>
+      <div class="tv-consultation-badge">
+        <div class="tv-pulse-dot" style="width:6px;height:6px"></div>
+        <div class="tv-cb-text">IN CONSULTATION</div>
+      </div>
+      <div class="tv-timer">
+        <div class="tv-timer-label">Consultation Duration</div>
+        <div class="tv-timer-val" id="tv-dur">00:00</div>
+      </div>
+    </div>
+    <div class="tv-queue-panel">
+      <div class="tv-qp-header">
+        <div class="tv-qp-title">Upcoming Queue</div>
+        <div class="tv-qp-count" id="tv-qcnt">— waiting</div>
+      </div>
+      <div class="tv-queue-rows" id="tv-qrows"></div>
+    </div>
+  </div>
+  <div class="tv-stats">
+    <div class="tv-stat"><div class="tv-stat-n" id="tv-st1" style="color:var(--cyan)">0</div><div class="tv-stat-l">Patients Today</div></div>
+    <div class="tv-stat"><div class="tv-stat-n" id="tv-st2" style="color:var(--amber)">0</div><div class="tv-stat-l">Waiting Now</div></div>
+    <div class="tv-stat"><div class="tv-stat-n" id="tv-st3" style="color:var(--green)">0</div><div class="tv-stat-l">Done Today</div></div>
+    <div class="tv-stat"><div class="tv-stat-n" id="tv-st4" style="color:var(--t1)">—</div><div class="tv-stat-l">Avg Wait Time</div></div>
+  </div>
+  <div class="tv-ticker">
+    <span class="tv-ticker-inner" id="tv-tick">
+      <span>●</span> QueueFlow Agent Pro active — 3 AI agents monitoring priority, doctor choice, and wait times
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <span>●</span> Emergency patients are automatically prioritized
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <span>●</span> Please keep your token slip ready
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <span>●</span> Kindly maintain silence in the waiting area
+      &nbsp;&nbsp;&nbsp;&nbsp;
+    </span>
+  </div>
+</div>
+</div>
+
+<!-- ═══ RECEPTION ══════════════════════════════════════════════ -->
+<div id="s-rec" class="screen on">
+<div class="app-wrap">
+  <div class="app-head">
+    <div>
+      <div class="app-title">Reception</div>
+      <div class="app-sub">Register patients · AI agents handle assignment & routing automatically</div>
+    </div>
+  </div>
+
+  <!-- Agent suggestion banner -->
+  <div class="suggestion-banner" id="suggBanner">
+    <div class="sb-icon">🤖</div>
+    <div class="sb-text" id="suggText">Suggestion text here</div>
+    <button class="sb-close" onclick="document.getElementById('suggBanner').classList.remove('on')">✕</button>
+  </div>
+
+  <div class="card emg-live-panel">
+    <div class="card-hd" style="margin-bottom:10px">
+      <div class="card-title"><div class="cdot c-red"></div> Live Emergency Alerts</div>
+      <div class="emg-live-count" id="emg-live-count">0 waiting</div>
+    </div>
+    <div class="emg-live-meta">
+      <span id="emg-live-critical">Critical now: 0</span>
+      <span id="emg-live-long">Over 20m wait: 0</span>
+    </div>
+    <div class="emg-live-list" id="emg-live-list">
+      <div class="emg-empty">No emergency patients waiting.</div>
+    </div>
+  </div>
+
+  <div class="rec-layout">
+    <!-- FORM CARD -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title"><div class="cdot c-cyan"></div> New Patient Registration</div>
+        <span class="ai-score">🤖 AI-Assisted</span>
+      </div>
+      <div class="fg2">
+        <div class="fg">
+          <label class="fl">Patient Name *</label>
+          <input class="fi" id="r-nm" placeholder="Full name" type="text">
+        </div>
+        <div class="fg">
+          <label class="fl">Age *</label>
+          <input class="fi" id="r-age" placeholder="Age" type="number" min="1" max="120" oninput="onAgeChange()">
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Problem Description</label>
+        <input class="fi" id="r-cc" placeholder="e.g. Chest pain, fever, back ache, BP check…" oninput="onDescChange()">
+      </div>
+      <div class="fg">
+        <label class="fl">Assign Doctor</label>
+        <select class="fi" id="r-doc" onchange="onDocChange()" style="cursor:pointer">
+          <option value="">— Auto-assign (AI recommended) —</option>
+        </select>
+      </div>
+      <div class="fg" style="margin-bottom:6px">
+        <label class="fl">Priority</label>
+        <div class="priority-group" id="priGroup">
+          <label class="pri-btn sel-normal" id="pri-normal" onclick="setPri('normal')">
+            <input type="radio" name="pri" value="normal" checked> ⏳ Normal
+          </label>
+          <label class="pri-btn" id="pri-senior" onclick="setPri('senior')">
+            <input type="radio" name="pri" value="senior"> 👴 Senior (60+)
+          </label>
+          <label class="pri-btn" id="pri-emg" onclick="setPri('emg')">
+            <input type="radio" name="pri" value="emg"> 🔴 Emergency
+          </label>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="register()">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m-8-8h16"/></svg>
+        Register &amp; Generate Token
+      </button>
+    </div>
+
+    <!-- QUEUE CARD -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title" style="gap:12px">
+          <div class="cdot c-cyan"></div>
+          Live Queue
+          <span class="count-badge" id="r-cnt">0</span>
+          <span style="font-size:12px;color:var(--app-muted);font-weight:400">waiting</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="clearDone()">Clear Done</button>
+        </div>
+      </div>
+      <div class="scrollbox">
+        <table class="qtable">
+          <thead><tr>
+            <th>Token</th><th>Patient</th><th>Description</th><th>Doctor</th><th>Score</th><th>Wait</th><th>Status</th>
+          </tr></thead>
+          <tbody id="r-tbody"><tr><td colspan="7" style="text-align:center;color:var(--app-muted);padding:32px;font-size:13px">No patients yet.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ DOCTOR PANELS ══════════════════════════════════════════ -->
+<div id="s-doc" class="screen">
+<div class="app-wrap">
+  <div class="app-head">
+    <div>
+      <div class="app-title">Doctor Panels</div>
+      <div class="app-sub">Multi-doctor queue management · AI load-balancing active</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="btn btn-ghost" onclick="openAddDoctor()">+ Add Doctor</button>
+    </div>
+  </div>
+
+  <!-- Doctor Overview Cards -->
+  <div class="doctor-overview" id="docOverview"></div>
+
+  <!-- Active Doctor Detail Panel -->
+  <div id="docDetailWrap">
+    <div class="doc-panel-grid" id="docDetail"></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ ADMIN ═══════════════════════════════════════════════════ -->
+<div id="s-admin" class="screen">
+<div class="app-wrap">
+  <div class="app-head">
+    <div>
+      <div class="app-title">Admin Dashboard</div>
+      <div class="app-sub">Real-time analytics · AI agent performance</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="exp-btn" onclick="expCSV()">⬇ Export CSV</button>
+      <button class="btn btn-danger" style="font-size:12px;padding:7px 14px" onclick="nuke()">🗑 Reset All</button>
+    </div>
+  </div>
+  <div class="admin-stats">
+    <div class="a-stat"><div class="a-stat-n blue" id="a-tot">0</div><div class="a-stat-l">Total Patients</div></div>
+    <div class="a-stat"><div class="a-stat-n teal" id="a-dn">0</div><div class="a-stat-l">Completed</div></div>
+    <div class="a-stat"><div class="a-stat-n amber" id="a-wt">0</div><div class="a-stat-l">In Queue</div></div>
+    <div class="a-stat"><div class="a-stat-n red" id="a-emg">0</div><div class="a-stat-l">Emergencies</div></div>
+  </div>
+  <div class="admin-grid">
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title"><div class="cdot c-blue"></div> Patient Log</div>
+      </div>
+      <div class="scrollbox" style="max-height:440px">
+        <table class="admin-table">
+          <thead><tr><th>Token</th><th>Name</th><th>Age</th><th>Description</th><th>Doctor</th><th>Score</th><th>Flag</th><th>Status</th><th>Time</th></tr></thead>
+          <tbody id="a-tbody"><tr><td colspan="9" style="text-align:center;color:var(--app-muted);padding:28px">No records.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="card-hd" style="margin-bottom:12px"><div class="card-title"><div class="cdot c-cyan"></div> Hourly Volume</div></div>
+        <div class="bars" id="a-bars"></div>
+        <div style="margin-top:14px">
+          <div style="font-size:11px;color:var(--app-muted);font-weight:600;margin-bottom:8px;letter-spacing:0.5px;text-transform:uppercase">AI Peak Prediction</div>
+          <div class="peak-band" id="peak-band"></div>
+          <div class="peak-band" id="peak-labels" style="gap:3px;margin-top:2px"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd" style="margin-bottom:12px"><div class="card-title"><div class="cdot c-amber"></div> Doctor Workload Heatmap</div></div>
+        <div class="heatmap-grid" id="a-heatmap">
+          <div class="heatmap-empty">No doctor data.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd" style="margin-bottom:12px"><div class="card-title"><div class="cdot c-purple"></div> Agent Performance</div></div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--app-surface);border-radius:8px">
+            <span style="font-size:12px;font-weight:500">⚡ Priority Boosts</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--cyan2)" id="ap-priority">0</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--app-surface);border-radius:8px">
+            <span style="font-size:12px;font-weight:500">🩺 Doctor Suggestions</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--cyan2)" id="ap-doctor">0</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--app-surface);border-radius:8px">
+            <span style="font-size:12px;font-weight:500">📈 Delay Alerts</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--green)" id="ap-predict">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
