@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080E1F;--bg2:#0D1630;--bg3:#111D3A;
+  --cyan:#00E5C8;--cyan2:#00B89E;--amber:#FFB340;
+  --red:#FF4560;--blue:#3D8EFF;--green:#22D37A;--purple:#A78BFA;
+  --white:#FFF;
+  --t1:rgba(255,255,255,0.92);--t2:rgba(255,255,255,0.55);--t3:rgba(255,255,255,0.28);
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --card:#1C2847;--surface:#161F38;--muted:#6B7A99;
+  --app-bg:#F4F7FC;--app-card:#FFF;--app-border:#E2E8F2;
+  --app-text:#0F1830;--app-muted:#6B7A99;--app-surface:#EEF2FA;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--app-bg);color:var(--app-text);min-height:100vh;overflow-x:hidden;font-size:13px}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:200;height:50px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;gap:10px}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-mark{width:28px;height:28px;background:linear-gradient(135deg,var(--cyan),#00a891);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--bg);font-weight:900}
+.logo-name{font-size:17px;font-weight:700;color:var(--white);letter-spacing:.3px}
+.logo-ver{font-size:9px;font-weight:700;background:rgba(167,139,250,0.18);color:var(--purple);padding:2px 6px;border-radius:4px;letter-spacing:1px;border:1px solid rgba(167,139,250,0.3)}
+.tabs{display:flex;gap:2px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:9px;padding:3px}
+.tab{padding:5px 11px;font-size:11px;font-weight:500;color:var(--t2);border:none;background:none;border-radius:6px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tab:hover{color:var(--t1);background:rgba(255,255,255,0.07)}
+.tab.active{background:var(--cyan);color:var(--bg);font-weight:700}
+.live-dot{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--green);letter-spacing:1px}
+.live-dot::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* SCREENS */
+.screen{display:none}.screen.on{display:block}
+.tv-screen{display:none}.tv-screen.on{display:block}
+.wrap{max-width:1300px;margin:0 auto;padding:18px 20px 40px}
+.pg-head{margin-bottom:18px;display:flex;align-items:flex-end;justify-content:space-between}
+.pg-title{font-size:26px;font-weight:700;color:var(--app-text)}
+.pg-sub{font-size:12px;color:var(--app-muted);margin-top:2px}
+
+/* CARDS */
+.card{background:var(--app-card);border:1px solid var(--app-border);border-radius:13px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:12px;font-weight:600;color:var(--app-text);display:flex;align-items:center;gap:7px}
+.cdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.c-cyan{background:var(--cyan2)}.c-amber{background:var(--amber)}.c-red{background:var(--red)}.c-blue{background:var(--blue)}.c-green{background:var(--green)}.c-purple{background:var(--purple)}
+
+/* BTNS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--cyan2);color:#fff}
+.btn-primary:hover{background:#009a86}
+.btn-ghost{background:var(--app-surface);color:var(--app-muted);border:1px solid var(--app-border)}
+.btn-ghost:hover{background:var(--app-border);color:var(--app-text)}
+.btn-danger{background:rgba(255,69,96,0.07);color:var(--red);border:1.5px solid rgba(255,69,96,0.2)}
+.btn-danger:hover{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* FORM */
+.fl{font-size:10px;font-weight:600;color:var(--app-muted);letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:5px}
+.fi{width:100%;padding:8px 10px;font-size:13px;border:1.5px solid var(--app-border);border-radius:8px;outline:none;color:var(--app-text);background:var(--app-card);transition:border-color .15s}
+.fi:focus{border-color:var(--cyan2);box-shadow:0 0 0 3px rgba(0,184,158,.1)}
+.fg{margin-bottom:11px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.pill-wait{background:#E8F8F4;color:#0A7A65}
+.pill-room{background:#FFF3CD;color:#8A6000}
+.pill-done{background:#F2F2F2;color:#888}
+.tag-emg{background:rgba(255,69,96,0.1);color:var(--red);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.3px}
+.tag-sr{background:rgba(255,179,64,0.1);color:#8a6000;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px}
+.ai-score{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(167,139,250,0.1);color:var(--purple);letter-spacing:.2px}
+
+/* TOAST */
+.toast-stack{position:fixed;bottom:16px;right:16px;z-index:1000;display:flex;flex-direction:column-reverse;gap:6px;pointer-events:none}
+.toast{background:var(--bg);border:1px solid var(--border2);border-radius:9px;padding:10px 14px;max-width:280px;box-shadow:0 6px 24px rgba(0,0,0,.4);animation:toastIn .3s cubic-bezier(.175,.885,.32,1.275);pointer-events:all;display:flex;align-items:flex-start;gap:8px}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+.toast.fadeout{animation:toastOut .3s ease forwards}
+@keyframes toastOut{to{opacity:0;transform:translateY(6px) scale(.95)}}
+.t-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+.t-title{font-size:11px;font-weight:700;color:var(--t1);margin-bottom:1px}
+.t-msg{font-size:10px;color:var(--t2);line-height:1.4}
+.toast.type-emg{border-color:rgba(255,69,96,.4)}
+.toast.type-ok{border-color:rgba(34,211,122,.25)}
+.toast.type-warn{border-color:rgba(255,179,64,.3)}
+
+/* POPUP */
+.popup-overlay{display:none;position:fixed;inset:0;background:rgba(8,14,31,.75);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.popup-overlay.on{display:flex}
+.popup-card{background:#fff;border-radius:18px;min-width:280px;max-width:320px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:popIn .3s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes popIn{from{transform:scale(.85) translateY(16px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.popup-head{background:linear-gradient(135deg,var(--bg),var(--bg3));padding:22px 22px 18px;text-align:center}
+.popup-clinic{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+.popup-token{font-size:76px;font-weight:800;color:var(--white);line-height:1;letter-spacing:-2px}
+.popup-body{padding:16px 20px}
+.popup-name{font-size:16px;font-weight:600;color:var(--app-text)}
+.popup-wait{font-size:12px;color:var(--app-muted);margin-top:3px}
+.popup-meta{display:flex;margin-top:12px;border-top:1px dashed var(--app-border);padding-top:12px}
+.popup-meta-item{flex:1;text-align:center}
+.popup-meta-item+.popup-meta-item{border-left:1px solid var(--app-border)}
+.pm-val{font-size:18px;font-weight:700;color:var(--app-text)}
+.pm-lab{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--app-muted);margin-top:1px}
+.popup-footer{padding:0 20px 16px;display:flex;flex-direction:column;gap:7px}
+.btn-cancel-appt{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid rgba(255,69,96,.25);background:rgba(255,69,96,.05);color:var(--red);transition:all .15s;width:100%}
+.btn-cancel-appt:hover{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* RECEPTION */
+.rec-layout{display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start}
+.priority-group{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px}
+.pri-btn{display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 6px;border:1.5px solid var(--app-border);border-radius:8px;cursor:pointer;font-size:11px;font-weight:600;color:var(--app-muted);background:var(--app-card);transition:all .15s}
+.pri-btn input{display:none}
+.pri-btn.sel-normal{border-color:var(--blue);background:rgba(61,142,255,.06);color:var(--blue)}
+.pri-btn.sel-senior{border-color:var(--amber);background:rgba(255,179,64,.06);color:#8a5a00}
+.pri-btn.sel-emg{border-color:var(--red);background:rgba(255,69,96,.06);color:var(--red)}
+.scrollbox{max-height:380px;overflow-y:auto}
+.qtable{width:100%;border-collapse:collapse}
+.qtable th{font-size:9px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--app-muted);padding:8px 12px;background:var(--app-surface);text-align:left}
+.qtable td{padding:9px 12px;border-bottom:1px solid var(--app-border);font-size:12px;vertical-align:middle}
+.qtable tr:last-child td{border-bottom:none}
+.qtable tbody tr:hover td{background:#F6F9FE}
+.q-tok{font-size:17px;font-weight:700;color:var(--app-text)}
+.action-btn-cancel{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;border:1px solid rgba(255,69,96,.2);background:rgba(255,69,96,.06);color:var(--red);font-size:11px;cursor:pointer;transition:all .15s}
+.action-btn-cancel:hover{background:var(--red);color:#fff}
+.symptom-ai-chip{display:flex;align-items:center;gap:6px;margin-top:6px;padding:6px 9px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.22);border-radius:7px;font-size:11px;color:#5b21b6;animation:chipIn .25s ease}
+@keyframes chipIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.conf-high{font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px;background:rgba(34,211,122,.12);color:#15803d;margin-left:auto}
+.conf-med{font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px;background:rgba(255,179,64,.12);color:#92400e;margin-left:auto}
+
+/* TV */
+.tv{min-height:calc(100vh - 50px);background:var(--bg);display:grid;grid-template-rows:auto 1fr auto auto;position:relative;overflow:hidden}
+.tv::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,200,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,200,.02) 1px,transparent 1px);background-size:48px 48px;pointer-events:none}
+.tv-head{display:flex;align-items:center;justify-content:space-between;padding:14px 28px 12px;border-bottom:1px solid var(--border);position:relative;z-index:1}
+.tv-clinic-name{font-size:22px;font-weight:700;color:var(--white)}
+.tv-clinic-sub{font-size:10px;color:var(--t3);letter-spacing:.4px}
+.tv-hms{font-family:monospace;font-size:34px;font-weight:500;color:var(--cyan);line-height:1;text-align:right}
+.tv-date-str{font-size:10px;color:var(--t3);margin-top:2px;text-align:right}
+.tv-body{display:grid;grid-template-columns:minmax(0,42%) 1fr;gap:0;overflow:hidden;position:relative;z-index:1}
+/* Doctor rooms panel — compact left column */
+.tv-rooms{padding:14px 14px;display:flex;flex-direction:column;gap:0;background:rgba(0,0,0,.1);border-right:1px solid var(--border);overflow-y:auto}
+.tv-rooms-hd{font-size:8px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.tv-pulse{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:tvpulse 1.6s ease-out infinite}
+@keyframes tvpulse{0%{box-shadow:0 0 0 0 rgba(0,229,200,.5)}70%{box-shadow:0 0 0 10px rgba(0,229,200,0)}100%{box-shadow:0 0 0 0 rgba(0,229,200,0)}}
+.tv-doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;flex:1}
+/* Compact doctor room cards */
+.tv-room-card{background:rgba(255,255,255,.03);border:1.5px solid rgba(255,255,255,.07);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;position:relative;overflow:hidden;transition:all .4s}
+.tv-room-card::before{content:'';position:absolute;inset:0;border-radius:10px;background:radial-gradient(ellipse at top left,rgba(0,229,200,.04),transparent 60%);pointer-events:none}
+.tv-room-card.rc-active{border-color:rgba(0,229,200,.4);background:rgba(0,229,200,.05)}
+.tv-room-card.rc-active::before{background:radial-gradient(ellipse at top left,rgba(0,229,200,.09),transparent 60%)}
+.tv-room-card.rc-idle{border-color:rgba(255,255,255,.05)}
+.tv-room-card.rc-off{opacity:.45}
+.tv-rc-room{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:0}
+.tv-rc-doc{font-size:11px;font-weight:600;color:var(--t1);margin-bottom:4px}
+.tv-rc-status-row{display:flex;align-items:center;gap:4px;margin-bottom:4px}
+.tv-rc-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.tv-rc-dot.d-on{background:var(--cyan);animation:pulse 1.4s infinite}
+.tv-rc-dot.d-idle{background:var(--green)}
+.tv-rc-dot.d-off{background:var(--muted)}
+.tv-rc-status-txt{font-size:9px;font-weight:600}
+.tv-rc-tok{font-size:22px;font-weight:800;color:var(--amber);letter-spacing:-0.5px;line-height:1;font-family:monospace}
+.tv-rc-name{font-size:10px;font-weight:500;color:var(--t1);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tv-rc-timer{font-family:monospace;font-size:10px;color:var(--cyan);margin-top:2px;font-weight:600}
+.tv-rc-divider{height:1px;background:rgba(255,255,255,.06);margin:4px 0}
+.tv-rc-next{font-size:9px;color:var(--t3)}
+.tv-rc-queue-ct{font-size:8px;font-weight:700;padding:1px 6px;border-radius:8px;background:rgba(255,255,255,.07);color:var(--t2);align-self:flex-start;margin-top:auto}
+/* Legacy tv-now hidden */
+.tv-now{display:none}
+.tv-eyebrow{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.tv-big-tok{display:none}
+.tv-pname{display:none}
+.tv-pdoc{display:none}
+.tv-timer-wrap{display:none}
+.tv-timer-label{display:none}
+.tv-timer-val{display:none}
+
+/* TV QUEUE PANEL */
+.tv-queue{padding:16px 20px;overflow-y:auto;display:flex;flex-direction:column}
+.tv-qp-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tv-qp-title{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t3)}
+.tv-qp-count{font-family:monospace;font-size:10px;color:var(--t3)}
+.tv-qrows{display:flex;flex-direction:column;gap:6px}
+.tv-qrow{display:grid;grid-template-columns:70px 1fr auto 90px;align-items:center;gap:14px;padding:11px 16px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);animation:rowIn .3s ease forwards;opacity:0}
+@keyframes rowIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+.tv-qrow.is-next{background:rgba(255,179,64,.07);border-color:rgba(255,179,64,.2)}
+.tv-qrow.is-emg{background:rgba(255,69,96,.07);border-color:rgba(255,69,96,.22);animation:emgPulse 2s ease-in-out infinite,rowIn .3s ease forwards}
+@keyframes emgPulse{0%,100%{border-color:rgba(255,69,96,.22)}50%{border-color:rgba(255,69,96,.5)}}
+.tvq-tok{font-size:22px;font-weight:800;color:var(--t1)}
+.tvq-tok.cn{color:var(--amber)}.tvq-tok.ce{color:var(--red)}
+.tvq-name{font-size:13px;font-weight:500;color:var(--t1)}
+.tvq-sub{font-size:10px;color:var(--t3);margin-top:1px}
+.tvq-badge{font-size:9px;font-weight:700;padding:3px 9px;border-radius:4px;letter-spacing:.6px;text-transform:uppercase;text-align:center}
+.tvq-badge.next{background:rgba(255,179,64,.18);color:var(--amber)}
+.tvq-badge.emg{background:rgba(255,69,96,.18);color:var(--red)}
+.tvq-badge.num{background:rgba(255,255,255,.06);color:var(--t3)}
+
+/* TV DOCTOR STRIP — now hidden, replaced by tv-rooms grid above */
+.tv-doc-strip{display:none}
+
+/* TV STATS */
+.tv-stats{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--border);position:relative;z-index:1}
+.tv-stat{padding:12px 20px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:2px}
+.tv-stat:last-child{border-right:none}
+.tv-stat-n{font-size:28px;font-weight:700;color:var(--white);line-height:1}
+.tv-stat-l{font-size:9px;font-weight:600;letter-spacing:1px;color:var(--t3);text-transform:uppercase}
+
+/* TV TICKER */
+.tv-ticker{background:rgba(0,229,200,.04);border-top:1px solid rgba(0,229,200,.12);padding:6px 0;overflow:hidden;position:relative;z-index:1}
+.tv-ticker-inner{display:inline-block;white-space:nowrap;font-size:11px;font-weight:500;color:var(--t2);animation:tick 45s linear infinite}
+@keyframes tick{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
+.tv-ticker-inner span{color:var(--cyan);margin:0 5px}
+
+/* DOCTORS SCREEN */
+.doc-overview{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:20px}
+.doc-ov-card{background:var(--app-card);border:1.5px solid var(--app-border);border-radius:13px;padding:16px;cursor:pointer;transition:all .2s}
+.doc-ov-card:hover{border-color:var(--cyan2);box-shadow:0 3px 14px rgba(0,184,158,.1);transform:translateY(-1px)}
+.doc-ov-card.selected{border-color:var(--cyan2);box-shadow:0 0 0 3px rgba(0,184,158,.12)}
+.doc-ov-card.overloaded{border-color:rgba(255,69,96,.4)}
+.doc-avatar{width:40px;height:40px;border-radius:10px;background:rgba(0,184,158,.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.doc-ov-name{font-size:13px;font-weight:600;color:var(--app-text)}
+.doc-ov-room{font-size:11px;color:var(--app-muted);margin-top:1px}
+.dsb-avail{background:rgba(34,211,122,.1);color:var(--green)}
+.dsb-busy{background:rgba(255,179,64,.1);color:#8a6000}
+.dsb-over{background:rgba(255,69,96,.1);color:var(--red)}
+.dsb-off{background:rgba(107,122,153,.1);color:var(--muted)}
+.doc-status-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;letter-spacing:.4px}
+.capacity-bar{height:5px;border-radius:3px;background:var(--app-border);overflow:hidden;margin-top:5px}
+.capacity-fill{height:100%;border-radius:3px;background:var(--cyan2);transition:width .5s}
+.capacity-fill.warn{background:var(--amber)}.capacity-fill.over{background:var(--red)}
+.doc-panel-grid{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
+
+/* CP CARD */
+.cp-card{background:linear-gradient(140deg,var(--bg),#1A2F60);border-radius:14px;padding:22px;color:#fff;position:relative;overflow:hidden}
+.cp-card::after{content:'';position:absolute;right:-30px;top:-30px;width:160px;height:160px;background:radial-gradient(circle,rgba(0,229,200,.07) 0%,transparent 70%);pointer-events:none}
+.cp-eye{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,229,200,.6);margin-bottom:8px}
+.cp-tok{font-size:64px;font-weight:800;color:var(--cyan);line-height:.95;letter-spacing:-2px}
+.cp-nm{font-size:20px;font-weight:500;color:#fff;margin-top:8px}
+.cp-cc{font-size:12px;color:rgba(255,255,255,.4);margin-top:3px}
+.cp-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}
+.cp-m-lab{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.3);margin-bottom:3px}
+.cp-m-val{font-size:13px;font-weight:500;color:#fff}
+.btn-next-big{width:100%;padding:14px;font-size:18px;font-weight:700;letter-spacing:.8px;background:var(--cyan2);color:#fff;border:none;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .18s;box-shadow:0 4px 16px rgba(0,184,158,.3)}
+.btn-next-big:hover{background:#009a86;transform:translateY(-1px)}
+.btn-mark-done{width:100%;padding:11px;font-size:13px;font-weight:600;background:rgba(255,69,96,.07);color:var(--red);border:1.5px solid rgba(255,69,96,.2);border-radius:9px;cursor:pointer;margin-top:8px;transition:all .15s}
+.btn-mark-done:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.wl-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;background:var(--app-surface);transition:background .15s}
+.wl-row:hover{background:#EAF0FA}
+.wl-pos{font-size:18px;font-weight:700;color:var(--app-muted);min-width:22px}
+.wl-nm{font-size:12px;font-weight:500}
+.wl-cc{font-size:10px;color:var(--app-muted)}
+.wl-wt{font-family:monospace;font-size:10px;color:var(--app-muted)}
+.transfer-btn{opacity:0;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;border:1px solid rgba(0,184,158,.2);background:rgba(0,184,158,.06);color:var(--cyan2);font-size:10px;cursor:pointer;transition:all .15s}
+.wl-row:hover .transfer-btn{opacity:1}
+.transfer-btn:hover{background:var(--cyan2);color:#fff;border-color:var(--cyan2);transform:scale(1.1)}
+.cancel-btn-s{opacity:0;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;border:1px solid rgba(255,69,96,.2);background:rgba(255,69,96,.05);color:var(--red);font-size:10px;cursor:pointer;transition:all .15s}
+.wl-row:hover .cancel-btn-s{opacity:1}
+.cancel-btn-s:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.d-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.d-stat{background:var(--app-surface);border-radius:9px;padding:12px;text-align:center}
+.d-stat-v{font-size:28px;font-weight:700}
+.d-stat-l{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--app-muted);margin-top:2px}
+
+/* ADMIN */
+.admin-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+.a-stat{background:var(--app-card);border:1px solid var(--app-border);border-radius:11px;padding:16px 18px}
+.a-stat-n{font-size:36px;font-weight:700;line-height:1}
+.a-stat-l{font-size:11px;color:var(--app-muted);margin-top:2px;font-weight:500}
+.admin-grid{display:grid;grid-template-columns:1fr 290px;gap:16px}
+.admin-table{width:100%;border-collapse:collapse;font-size:11px}
+.admin-table th{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--app-muted);padding:7px 10px;background:var(--app-surface);text-align:left}
+.admin-table td{padding:8px 10px;border-bottom:1px solid var(--app-border)}
+.admin-table tr:last-child td{border-bottom:none}
+
+/* SYM CHIP */
+.sym-chip{display:flex;align-items:center;gap:5px;padding:5px 9px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.2);border-radius:7px;font-size:11px;color:#5b21b6;margin-bottom:8px}
+.heatmap-grid{display:flex;flex-direction:column;gap:7px}
+.heatmap-row{display:grid;grid-template-columns:1fr 60px;gap:8px;align-items:center;padding:7px 9px;border-radius:8px;background:var(--app-surface)}
+.heatmap-doc{font-size:11px;font-weight:600}
+.heatmap-sub{font-size:9px;color:var(--app-muted);margin-top:1px}
+.heat-low{background:rgba(34,211,122,.13);color:#15803d;border-radius:5px;font-size:9px;font-weight:600;text-align:center;padding:4px 5px;border:1px solid rgba(34,211,122,.25)}
+.heat-med{background:rgba(255,179,64,.16);color:#8a6000;border-radius:5px;font-size:9px;font-weight:600;text-align:center;padding:4px 5px;border:1px solid rgba(255,179,64,.28)}
+.heat-high{background:rgba(255,69,96,.14);color:var(--red);border-radius:5px;font-size:9px;font-weight:600;text-align:center;padding:4px 5px;border:1px solid rgba(255,69,96,.28)}
+.bars{display:flex;align-items:flex-end;gap:4px;height:80px;padding:0 2px}
+.bar-w{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
+.bar-b{width:100%;border-radius:3px 3px 0 0;background:var(--cyan2);opacity:.7;min-height:3px;transition:all .3s}
+.bar-l{font-size:8px;color:var(--app-muted);font-weight:600}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="logo">
+    <div class="logo-mark">Q</div>
+    <span class="logo-name">QueueFlow</span>
+    <span class="logo-ver">AGENT PRO</span>
+  </div>
+  <div class="tabs">
+    <button class="tab" data-s="tv" onclick="go(this,'tv')">📺 TV Display</button>
+    <button class="tab active" data-s="rec" onclick="go(this,'rec')">🖥 Reception</button>
+    <button class="tab" data-s="doc" onclick="go(this,'doc')">👨‍⚕️ Doctors</button>
+    <button class="tab" data-s="admin" onclick="go(this,'admin')">📊 Admin</button>
+  </div>
+  <div class="live-dot">LIVE</div>
+</nav>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- TOKEN POPUP -->
+<div class="popup-overlay" id="popup" onclick="if(event.target===this)closePopup()">
+  <div class="popup-card">
+    <div class="popup-head">
+      <div class="popup-clinic">QUEUEFLOW AGENT PRO</div>
+      <div class="popup-token" id="pop-tok">—</div>
+    </div>
+    <div class="popup-body">
+      <div class="popup-name" id="pop-nm"></div>
+      <div class="popup-wait" id="pop-wait"></div>
+      <div class="sym-chip" id="pop-sym" style="display:none"></div>
+      <div style="background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.2);border-radius:7px;padding:8px 10px;margin-bottom:9px;font-size:10px;color:#5b21b6;line-height:1.5" id="pop-ai">🤖 AI allocated using weighted scoring.</div>
+      <div class="popup-meta">
+        <div class="popup-meta-item"><div class="pm-val" id="pop-doc-s">—</div><div class="pm-lab">Doctor</div></div>
+        <div class="popup-meta-item"><div class="pm-val" id="pop-pos">—</div><div class="pm-lab">Position</div></div>
+        <div class="popup-meta-item"><div class="pm-val" id="pop-ewt">—</div><div class="pm-lab">Est. Wait</div></div>
+      </div>
+    </div>
+    <div class="popup-footer">
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="closePopup()">OK, Got It</button>
+      <button class="btn-cancel-appt" id="pop-cancel-btn" onclick="cancelFromPopup()">✕ Cancel Appointment</button>
+    </div>
+  </div>
+</div>
+
+<!-- CANCEL MODAL -->
+<div class="popup-overlay" id="cancelModal" onclick="if(event.target===this)closeCancelModal()">
+  <div class="popup-card" style="max-width:320px">
+    <div class="popup-head" style="padding:18px 20px 14px">
+      <div class="popup-clinic">CANCEL APPOINTMENT</div>
+      <div style="font-size:13px;font-weight:600;color:var(--white);margin-top:5px" id="cancel-title">Confirm Cancellation</div>
+    </div>
+    <div class="popup-body">
+      <div style="font-size:12px;color:var(--app-muted);margin-bottom:12px" id="cancel-desc"></div>
+      <div class="fg">
+        <label class="fl">Reason</label>
+        <select class="fi" id="cancel-reason" style="cursor:pointer">
+          <option>Patient request</option><option>No show</option>
+          <option>Doctor unavailable</option><option>Referred elsewhere</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="popup-footer" style="padding:0 20px 14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+        <button class="btn btn-ghost" style="justify-content:center" onclick="closeCancelModal()">Keep</button>
+        <button class="btn btn-danger" style="justify-content:center" onclick="executeCancellation()">✕ Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSFER MODAL -->
+<div class="popup-overlay" id="transferModal" onclick="if(event.target===this)closeTransferModal()">
+  <div class="popup-card" style="max-width:340px">
+    <div class="popup-head" style="padding:18px 20px 14px">
+      <div class="popup-clinic">INTERNAL TRANSFER</div>
+      <div style="font-size:13px;font-weight:600;color:var(--white);margin-top:5px" id="xfer-label">Transfer Patient</div>
+    </div>
+    <div class="popup-body">
+      <div class="fg">
+        <label class="fl">Transfer To Doctor</label>
+        <select class="fi" id="xfer-doc" style="cursor:pointer"><option value="">— Select Doctor —</option></select>
+      </div>
+      <div class="fg">
+        <label class="fl">Reason (optional)</label>
+        <input class="fi" id="xfer-reason" placeholder="e.g. Requires specialist…" type="text">
+      </div>
+    </div>
+    <div class="popup-footer" style="padding:0 20px 14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+        <button class="btn btn-ghost" style="justify-content:center" onclick="closeTransferModal()">Cancel</button>
+        <button class="btn btn-primary" style="justify-content:center" onclick="confirmTransfer()">🔁 Transfer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD DOCTOR MODAL -->
+<div class="popup-overlay" id="addDocModal" onclick="if(event.target===this)closeAddDocModal()">
+  <div class="popup-card" style="max-width:380px">
+    <div class="popup-head" style="padding:18px 20px 14px">
+      <div class="popup-clinic">DOCTOR MANAGEMENT</div>
+      <div style="font-size:14px;font-weight:600;color:var(--white);margin-top:5px">Add New Doctor</div>
+    </div>
+    <div class="popup-body">
+      <div class="fg2">
+        <div class="fg"><label class="fl">Name *</label><input class="fi" id="ad-name" placeholder="Dr. Sharma" type="text"></div>
+        <div class="fg"><label class="fl">Room *</label><input class="fi" id="ad-room" placeholder="Room 5" type="text"></div>
+      </div>
+      <div class="fg">
+        <label class="fl">Specialization</label>
+        <select class="fi" id="ad-spec" style="cursor:pointer">
+          <option>General Physician</option><option>Cardiologist</option><option>Dermatologist</option>
+          <option>Orthopedic</option><option>Neurologist</option><option>Pediatrician</option>
+          <option>Gastroenterologist</option><option>Ophthalmologist</option><option>ENT Specialist</option>
+          <option>Endocrinologist</option><option>Pulmonologist</option><option>Psychiatrist</option>
+          <option>Urologist</option><option>Internal Medicine</option><option>Other</option>
+        </select>
+      </div>
+      <div class="fg2">
+        <div class="fg"><label class="fl">Max Capacity</label><input class="fi" id="ad-cap" type="number" value="8" min="1" max="50"></div>
+        <div class="fg"><label class="fl">Emoji</label><input class="fi" id="ad-emoji" value="👨‍⚕️" maxlength="4"></div>
+      </div>
+      <div id="ad-err" style="display:none;font-size:11px;color:var(--red);background:rgba(255,69,96,.06);border:1px solid rgba(255,69,96,.2);border-radius:7px;padding:8px 10px"></div>
+    </div>
+    <div class="popup-footer" style="padding:0 20px 14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+        <button class="btn btn-ghost" style="justify-content:center" onclick="closeAddDocModal()">Cancel</button>
+        <button class="btn btn-primary" style="justify-content:center" onclick="submitAddDoc()">+ Add Doctor</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TV DISPLAY ══════════════════════════════════════════════ -->
+<div id="s-tv" class="tv-screen">
+<div class="tv">
+  <div class="tv-head">
+    <div>
+      <div class="tv-clinic-name">🏥 Multi-Specialty OPD</div>
+      <div class="tv-clinic-sub">AI-Powered Queue · QueueFlow Agent Pro</div>
+    </div>
+    <div>
+      <div class="tv-hms" id="tv-hms">--:--:--</div>
+      <div class="tv-date-str" id="tv-dstr">--</div>
+    </div>
+  </div>
+
+  <div class="tv-body">
+    <!-- ═══ DOCTOR ROOMS PANEL — replaces old "Now Serving" side ═══ -->
+    <div class="tv-rooms">
+      <div class="tv-rooms-hd"><div class="tv-pulse"></div>CONSULTATION ROOMS</div>
+      <div class="tv-doc-grid" id="tv-doc-grid"></div>
+    </div>
+
+    <div class="tv-queue">
+      <div class="tv-qp-hd">
+        <div class="tv-qp-title">Upcoming Queue</div>
+        <div class="tv-qp-count" id="tv-qcnt">— waiting</div>
+      </div>
+      <div class="tv-qrows" id="tv-qrows"></div>
+    </div>
+  </div>
+
+  <div class="tv-stats">
+    <div class="tv-stat"><div class="tv-stat-n" id="tv-st1" style="color:var(--cyan)">0</div><div class="tv-stat-l">Patients Today</div></div>
+    <div class="tv-stat"><div class="tv-stat-n" id="tv-st2" style="color:var(--amber)">0</div><div class="tv-stat-l">Waiting Now</div></div>
+    <div class="tv-stat"><div class="tv-stat-n" id="tv-st3" style="color:var(--green)">0</div><div class="tv-stat-l">Done Today</div></div>
+    <div class="tv-stat"><div class="tv-stat-n" id="tv-st4" style="color:var(--t1)">—</div><div class="tv-stat-l">Avg Wait</div></div>
+    <div class="tv-stat"><div class="tv-stat-n" id="tv-st5" style="color:var(--purple)">0</div><div class="tv-stat-l">Cancelled</div></div>
+  </div>
+  <div class="tv-ticker">
+    <span class="tv-ticker-inner">
+      <span>●</span> QueueFlow Agent Pro active — 5 AI agents monitoring your OPD
+      &nbsp;&nbsp;&nbsp;&nbsp;<span>●</span> Emergency patients are automatically prioritized
+      &nbsp;&nbsp;&nbsp;&nbsp;<span>●</span> Please keep your token slip ready
+      &nbsp;&nbsp;&nbsp;&nbsp;<span>●</span> Kindly maintain silence in the waiting area
+      &nbsp;&nbsp;&nbsp;&nbsp;
+    </span>
+  </div>
+</div>
+</div>
+
+<!-- ═══ RECEPTION ══════════════════════════════════════════════ -->
+<div id="s-rec" class="screen on">
+<div class="wrap">
+  <div class="pg-head">
+    <div><div class="pg-title">Reception</div><div class="pg-sub">Register patients · AI handles assignment & routing</div></div>
+  </div>
+  <div class="rec-layout">
+    <div class="card">
+      <div class="card-hd"><div class="card-title"><div class="cdot c-cyan"></div>New Patient Registration</div><span class="ai-score">🤖 AI-Assisted</span></div>
+      <div class="fg2">
+        <div class="fg"><label class="fl">Patient Name *</label><input class="fi" id="r-nm" placeholder="Full name" type="text"></div>
+        <div class="fg"><label class="fl">Age *</label><input class="fi" id="r-age" placeholder="Age" type="number" min="1" max="120" oninput="onAgeChange()"></div>
+      </div>
+      <div class="fg">
+        <label class="fl">Problem Description</label>
+        <input class="fi" id="r-cc" placeholder="e.g. Chest pain, fever, back ache…" oninput="onDescChange()">
+        <div id="sym-chip" style="display:none" class="symptom-ai-chip">
+          <span style="font-size:13px">🧠</span>
+          <span style="font-size:11px">AI suggests: <strong id="sym-spec">—</strong></span>
+          <span id="sym-conf" class="conf-high"></span>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Assign Doctor</label>
+        <select class="fi" id="r-doc" onchange="onDocChange()" style="cursor:pointer">
+          <option value="">— Auto-assign (AI recommended) —</option>
+        </select>
+      </div>
+      <div class="fg" style="margin-bottom:6px">
+        <label class="fl">Priority</label>
+        <div class="priority-group">
+          <label class="pri-btn sel-normal" id="pri-normal" onclick="setPri('normal')"><input type="radio" name="pri" value="normal" checked>⏳ Normal</label>
+          <label class="pri-btn" id="pri-senior" onclick="setPri('senior')"><input type="radio" name="pri" value="senior">👴 Senior</label>
+          <label class="pri-btn" id="pri-emg" onclick="setPri('emg')"><input type="radio" name="pri" value="emg">🔴 Emergency</label>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="register()">+ Register & Generate Token</button>
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title"><div class="cdot c-cyan"></div>Live Queue <span style="font-size:17px;font-weight:700;color:var(--cyan2);background:rgba(0,184,158,.08);border:1px solid rgba(0,184,158,.18);padding:2px 10px;border-radius:6px;margin-left:6px" id="r-cnt">0</span></div>
+        <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="clearDone()">Clear Done</button>
+      </div>
+      <div class="scrollbox">
+        <table class="qtable">
+          <thead><tr><th>Token</th><th>Patient</th><th>Description</th><th>Doctor</th><th>Score</th><th>Wait</th><th>Status</th><th></th></tr></thead>
+          <tbody id="r-tbody"><tr><td colspan="8" style="text-align:center;color:var(--app-muted);padding:28px;font-size:12px">No patients yet.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ DOCTORS ════════════════════════════════════════════════ -->
+<div id="s-doc" class="screen">
+<div class="wrap">
+  <div class="pg-head">
+    <div><div class="pg-title">Doctor Panels</div><div class="pg-sub">Multi-doctor queue · AI load-balancing active</div></div>
+    <button class="btn btn-ghost" onclick="openAddDocModal()">+ Add Doctor</button>
+  </div>
+  <div class="doc-overview" id="docOverview"></div>
+  <div class="doc-panel-grid" id="docDetail"></div>
+</div>
+</div>
+
+<!-- ═══ ADMIN ══════════════════════════════════════════════════ -->
+<div id="s-admin" class="screen">
+<div class="wrap">
+  <div class="pg-head">
+    <div><div class="pg-title">Admin Dashboard</div><div class="pg-sub">Real-time analytics · AI agent performance</div></div>
+    <div style="display:flex;gap:7px">
+      <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px" onclick="expCSV()">⬇ Export CSV</button>
+      <button class="btn btn-danger" style="font-size:11px;padding:6px 12px" onclick="nuke()">🗑 Reset All</button>
+    </div>
+  </div>
+  <div class="admin-stats">
+    <div class="a-stat"><div class="a-stat-n" style="color:var(--blue)" id="a-tot">0</div><div class="a-stat-l">Total Patients</div></div>
+    <div class="a-stat"><div class="a-stat-n" style="color:var(--cyan2)" id="a-dn">0</div><div class="a-stat-l">Completed</div></div>
+    <div class="a-stat"><div class="a-stat-n" style="color:var(--amber)" id="a-wt">0</div><div class="a-stat-l">In Queue</div></div>
+    <div class="a-stat"><div class="a-stat-n" style="color:var(--red)" id="a-emg">0</div><div class="a-stat-l">Emergencies</div></div>
+    <div class="a-stat"><div class="a-stat-n" style="color:var(--purple)" id="a-cancel">0</div><div class="a-stat-l">Cancelled</div></div>
+  </div>
+  <div class="admin-grid">
+    <div class="card">
+      <div class="card-hd"><div class="card-title"><div class="cdot c-blue"></div>Patient Log</div></div>
+      <div class="scrollbox" style="max-height:400px">
+        <table class="admin-table">
+          <thead><tr><th>Token</th><th>Name</th><th>Age</th><th>Description</th><th>Doctor</th><th>Score</th><th>Flag</th><th>Status</th><th>Time</th></tr></thead>
+          <tbody id="a-tbody"><tr><td colspan="9" style="text-align:center;color:var(--app-muted);padding:24px">No records.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card">
+        <div class="card-hd" style="margin-bottom:10px"><div class="card-title"><div class="cdot c-cyan"></div>Hourly Volume</div></div>
+        <div class="bars" id="a-bars"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd" style="margin-bottom:10px"><div class="card-title"><div class="cdot c-amber"></div>Doctor Workload</div></div>
+        <div class="heatmap-grid" id="a-heatmap"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd" style="margin-bottom:10px"><div class="card-title"><div class="cdot c-purple"></div>Cancellation Analytics</div></div>
+        <div id="cancel-analytics"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const AVG = 10;
+let tok = 1, activeDocId = 'd1', currentPri = 'normal';
+let _popupPatientId = null, _cancelTargetId = null, _xferPid = null, _xferFromDoc = null;
+let _curSymSpec = null, _cancelCount = 0;
+const cancellationLog = [];
+
+let doctors = [
+  {id:'d1',name:'Dr. Ramesh', room:'Room 1',emoji:'👨‍⚕️',specialty:'General Physician',maxCap:8, status:'available',consulStart:null},
+  {id:'d2',name:'Dr. Malathi',room:'Room 2',emoji:'👩‍⚕️',specialty:'Internal Medicine', maxCap:7, status:'available',consulStart:null},
+  {id:'d3',name:'Dr. Kumar',  room:'Room 3',emoji:'👨‍⚕️',specialty:'Cardiologist',       maxCap:6, status:'available',consulStart:null},
+  {id:'d4',name:'Dr. Priya',  room:'Room 4',emoji:'👩‍⚕️',specialty:'Pediatrician',       maxCap:10,status:'available',consulStart:null},
+];
+let pts = [];
+
+/* ── SYMPTOM NLP ─────────────────────────────────────────── */
+const SPEC_RULES = [
+  {s:'Cardiologist',   kw:['chest pain','heart','cardiac','angina','palpitation','bp drop','arrhythmia','ecg']},
+  {s:'General Physician',kw:['fever','cold','cough','flu','weakness','fatigue','body pain','headache','nausea','vomiting','diarrhea','checkup']},
+  {s:'Dermatologist',  kw:['skin rash','rash','itching','eczema','acne','psoriasis','skin','hives','blisters']},
+  {s:'Orthopedic',     kw:['fracture','joint pain','knee pain','back pain','bone','spine','shoulder pain','hip pain','arthritis']},
+  {s:'Neurologist',    kw:['seizure','stroke','migraine','numbness','tremor','paralysis','epilepsy','vertigo','memory loss']},
+  {s:'Pediatrician',   kw:['child','infant','baby','newborn','toddler','kids','ear pain child','rash child','fever child']},
+  {s:'Gastroenterologist',kw:['stomach ache','abdominal','acidity','acid reflux','bloating','ibs','liver','jaundice','vomiting blood']},
+  {s:'Ophthalmologist',kw:['eye pain','eye irritation','red eye','blurred vision','vision','cataract','glaucoma']},
+  {s:'ENT Specialist', kw:['ear pain','hearing loss','sinusitis','tonsil','throat','nose bleed','sore throat']},
+  {s:'Endocrinologist',kw:['diabetes','thyroid','blood sugar','hormonal','pcos','insulin','weight gain','weight loss']},
+  {s:'Pulmonologist',  kw:['breathless','asthma','copd','pneumonia','wheezing','bronchitis','cough chronic']},
+  {s:'Psychiatrist',   kw:['anxiety','depression','insomnia','stress','panic','trauma','hallucination','mood swing']},
+  {s:'Urologist',      kw:['kidney stone','uti','urine','kidney pain','prostate','bladder','blood in urine']},
+];
+const EMG_KW = ['chest pain','heart attack','stroke','unconscious','severe bleeding','can\'t breathe','seizure','fitting','fracture','anaphylaxis','cardiac'];
+
+function analyzeSymptoms(t){
+  const n=t.toLowerCase();
+  let best=null,bestScore=0;
+  SPEC_RULES.forEach(r=>{
+    const sc=r.kw.filter(k=>n.includes(k)).length;
+    if(sc>bestScore){bestScore=sc;best=r.s}
+  });
+  if(!best)return null;
+  return {specialty:best,confidence:bestScore>=3?'high':bestScore>=2?'medium':'low'};
+}
+function matchSpec(docSpec,target){
+  if(!docSpec||!target)return false;
+  return docSpec.toLowerCase().includes(target.toLowerCase())||target.toLowerCase().includes(docSpec.toLowerCase().split(' ')[0]);
+}
+function detectEmg(t){return EMG_KW.some(k=>t.toLowerCase().includes(k))}
+
+/* ── AI DOCTOR ALLOCATION ────────────────────────────────── */
+function allocateDoctor(patient, prefId, specNeeded){
+  const avail=doctors.filter(d=>d.status!=='offline');
+  if(!avail.length)return null;
+  const ranked=avail.map(d=>{
+    const wq=pts.filter(p=>p.s==='w'&&p.docId===d.id).length;
+    const ip=pts.find(p=>p.s==='ip'&&p.docId===d.id);
+    const consultPen=ip&&ip.cal?Math.max(0,AVG-Math.floor((Date.now()-ip.cal)/60000)):0;
+    const predWait=wq*AVG+consultPen;
+    const avScore=d.status==='available'?100:d.status==='busy'?60:d.status==='overloaded'?10:0;
+    const spScore=specNeeded&&matchSpec(d.specialty,specNeeded)?100:0;
+    const loadNorm=Math.min((wq/Math.max(d.maxCap,1))*100,100);
+    const waitNorm=Math.min((predWait/60)*100,100);
+    const score=Math.round(0.35*avScore+0.30*spScore-0.20*loadNorm-0.15*waitNorm);
+    return{d,score,predWait,wq};
+  }).sort((a,b)=>b.score-a.score||a.predWait-b.predWait);
+  if(prefId){
+    const pd=doctors.find(d=>d.id===prefId&&d.status!=='offline');
+    if(pd){
+      const best=ranked[0];
+      const pWait=ranked.find(r=>r.d.id===prefId)?.predWait??0;
+      if(best&&best.d.id!==prefId&&pWait-best.predWait>=20)
+        showToast('🩺','Better Option','AI recommends '+best.d.name+' — shorter wait time.','warn');
+      return prefId;
+    }
+  }
+  return ranked[0]?.d.id||null;
+}
+
+/* ── QUEUE HELPERS ────────────────────────────────────────── */
+function getDoc(id){return doctors.find(d=>d.id===id)}
+function getWaiting(docId){return pts.filter(p=>p.s==='w'&&p.docId===docId).sort(cmpPts)}
+function cmpPts(a,b){
+  const sa=(a.emg?100:a.sr?50:0)+(a.priorityBoost||0);
+  const sb=(b.emg?100:b.sr?50:0)+(b.priorityBoost||0);
+  const d=sb-sa; if(d!==0)return d;
+  return a.reg-b.reg;
+}
+function predWait(docId){
+  const wq=getWaiting(docId).length;
+  const ip=pts.find(p=>p.s==='ip'&&p.docId===docId);
+  const pen=ip&&ip.cal?Math.max(0,AVG-Math.floor((Date.now()-ip.cal)/60000)):0;
+  return wq*AVG+pen;
+}
+function calcScore(p){
+  return (p.emg?100:p.sr?50:0)+(p.priorityBoost||0)+Math.max(0,Math.floor((Date.now()-p.reg)/60000));
+}
+function updateWaitTimes(){
+  doctors.forEach(doc=>{
+    const wq=getWaiting(doc.id);
+    wq.forEach((p,i)=>{p.ewt=i*AVG});
+    const load=wq.length;
+    const ip=pts.find(p=>p.s==='ip'&&p.docId===doc.id);
+    if(doc.status!=='offline'){
+      if(load===0&&!ip)doc.status='available';
+      else if(load>=doc.maxCap)doc.status='overloaded';
+      else doc.status='busy';
+    }
+  });
+  // Priority boost for long waits
+  pts.forEach(p=>{
+    if(p.s!=='w'){p.priorityBoost=0;return}
+    const wm=Math.max(0,Math.floor((Date.now()-p.reg)/60000));
+    p.priorityBoost=wm>=40?45:wm>=20?20:0;
+  });
+}
+
+/* ── REGISTRATION ─────────────────────────────────────────── */
+function register(){
+  const nm=document.getElementById('r-nm').value.trim();
+  const age=parseInt(document.getElementById('r-age').value);
+  const cc=document.getElementById('r-cc').value.trim();
+  const docSel=document.getElementById('r-doc').value;
+  if(!nm||isNaN(age)||age<1){showToast('⚠️','Missing Info','Enter patient name and age.','warn');return}
+  const emg=currentPri==='emg'||detectEmg(cc);
+  const sr=currentPri==='senior'||(age>=60&&!emg);
+  const p={
+    id:Date.now(),tok:'A-'+String(tok++).padStart(2,'0'),
+    nm,age,cc:cc||'General Checkup',emg,sr,s:'w',
+    reg:Date.now(),cal:null,done:null,ewt:0,
+    priorityBoost:0,docId:null,dr:'',
+    symptomSpecialty:_curSymSpec||null,
+    cancelledAt:null,cancelReason:null,transfers:[]
+  };
+  if(emg&&currentPri!=='emg')setPri('emg');
+  const did=allocateDoctor(p,docSel||null,_curSymSpec);
+  p.docId=did;
+  const doc=getDoc(did);
+  p.dr=doc?doc.name+' ('+doc.room+')':'Unassigned';
+  pts.push(p);
+  updateWaitTimes();
+  const pos=getWaiting(did).findIndex(x=>x.id===p.id)+1;
+  showPopup(p,pos);
+  ['r-nm','r-age','r-cc','r-doc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});
+  setPri('normal');
+  document.getElementById('sym-chip').style.display='none';
+  _curSymSpec=null;
+  repaint();
+}
+
+function onAgeChange(){
+  const age=parseInt(document.getElementById('r-age').value);
+  if(age>=60&&currentPri==='normal')setPri('senior');
+}
+function onDescChange(){
+  const desc=document.getElementById('r-cc').value;
+  if(detectEmg(desc)&&currentPri!=='emg')setPri('emg');
+  const chip=document.getElementById('sym-chip');
+  if(desc.trim().length<4){chip.style.display='none';_curSymSpec=null;return}
+  const res=analyzeSymptoms(desc);
+  if(!res){chip.style.display='none';_curSymSpec=null;return}
+  _curSymSpec=res.specialty;
+  document.getElementById('sym-spec').textContent=res.specialty;
+  const ce=document.getElementById('sym-conf');
+  ce.textContent=res.confidence==='high'?'✦ High':res.confidence==='medium'?'◈ Medium':'◇ Low';
+  ce.className=res.confidence==='high'?'conf-high':'conf-med';
+  chip.style.display='flex';
+}
+function onDocChange(){
+  const sel=document.getElementById('r-doc').value;
+  if(!sel)return;
+}
+function setPri(p){
+  currentPri=p;
+  ['normal','senior','emg'].forEach(x=>{
+    const el=document.getElementById('pri-'+x);
+    if(el)el.className='pri-btn'+(x===p?' sel-'+x:'');
+  });
+}
+
+/* ── DOCTOR ACTIONS ─────────────────────────────────────── */
+function callNext(docId){
+  const doc=getDoc(docId);
+  if(doc.status==='offline'){showToast('⚠️','Offline','Set doctor online first.','warn');return}
+  const next=getWaiting(docId)[0];
+  if(!next){showToast('ℹ️','Empty','No patients waiting.','warn');return}
+  pts.forEach(p=>{if(p.s==='ip'&&p.docId===docId){p.s='done';p.done=Date.now()}});
+  const idx=pts.findIndex(p=>p.id===next.id);
+  pts[idx].s='ip';pts[idx].cal=Date.now();
+  doc.consulStart=Date.now();
+  updateWaitTimes();
+  showToast('✅','Called',pts[idx].nm+' ('+pts[idx].tok+') called in.','ok');
+  repaint();
+  refreshTVStrip(); // INSTANT TV UPDATE
+}
+function markDone(docId){
+  const cp=pts.find(p=>p.s==='ip'&&p.docId===docId);
+  if(!cp){showToast('ℹ️','None','No active consultation.','warn');return}
+  cp.s='done';cp.done=Date.now();
+  const doc=getDoc(docId);
+  doc.consulStart=null;
+  updateWaitTimes();
+  showToast('✅','Done',cp.nm+' consultation complete.','ok');
+  repaint();
+  refreshTVStrip(); // INSTANT TV UPDATE
+}
+function toggleDocStatus(docId){
+  const doc=getDoc(docId);
+  if(doc.status==='offline'){
+    doc.status='available';
+    showToast('✅',doc.name+' Online','Doctor is now available.','ok');
+  } else {
+    doc.status='offline';
+    // Reassign waiting patients
+    const queue=pts.filter(p=>p.s==='w'&&p.docId===docId);
+    let count=0;
+    queue.forEach(p=>{
+      const avail=doctors.filter(d=>d.id!==docId&&d.status!=='offline');
+      if(!avail.length)return;
+      p.docId=null;p.dr='Unassigned';
+      const nd=allocateDoctor(p,null,p.symptomSpecialty);
+      if(nd){const d=getDoc(nd);p.docId=nd;p.dr=d.name+' ('+d.room+')';count++}
+    });
+    showToast('🔴',doc.name+' Offline',count+' patient(s) reassigned.','warn');
+  }
+  updateWaitTimes();repaint();refreshTVStrip();
+}
+
+/* ── CANCELLATION ────────────────────────────────────────── */
+let _pendingCancel=null;
+function openCancelModal(pid){
+  const p=pts.find(x=>x.id==pid);
+  if(!p)return;
+  _pendingCancel=pid;
+  document.getElementById('cancel-title').textContent='Cancel — '+p.tok+' · '+p.nm;
+  document.getElementById('cancel-desc').textContent='Remove '+p.nm+' from '+p.dr.split('(')[0].trim()+'\'s queue and recalculate positions.';
+  document.getElementById('cancelModal').classList.add('on');
+}
+function cancelFromPopup(){
+  if(!_popupPatientId)return;
+  closePopup();
+  openCancelModal(_popupPatientId);
+}
+function closeCancelModal(){document.getElementById('cancelModal').classList.remove('on');_pendingCancel=null}
+function executeCancellation(){
+  const p=pts.find(x=>x.id==_pendingCancel);
+  if(!p||p.s!=='w'){showToast('⚠️','Cannot Cancel',p?'Not waiting.':'Not found.','warn');closeCancelModal();return}
+  const waited=Math.max(0,Math.floor((Date.now()-p.reg)/60000));
+  const reason=document.getElementById('cancel-reason').value;
+  p.s='cancelled';p.cancelledAt=Date.now();p.cancelReason=reason;
+  cancellationLog.push({token:p.tok,name:p.nm,doctorName:p.dr.split('(')[0].trim(),reason,waitedMin:waited,cancelledAt:p.cancelledAt});
+  _cancelCount++;
+  updateWaitTimes();closeCancelModal();
+  showToast('✕','Cancelled',p.nm+'\'s appointment cancelled.','warn');
+  repaint();refreshTVStrip();
+}
+
+/* ── TRANSFER ─────────────────────────────────────────────── */
+function openTransferModal(pid,fromDocId){
+  const p=pts.find(x=>x.id==pid);
+  if(!p)return;
+  _xferPid=pid;_xferFromDoc=fromDocId;
+  document.getElementById('xfer-label').textContent='Transfer '+p.tok+' · '+p.nm;
+  const sel=document.getElementById('xfer-doc');
+  sel.innerHTML='<option value="">— Select Target Doctor —</option>';
+  doctors.filter(d=>d.id!==fromDocId&&d.status!=='offline').forEach(d=>{
+    const wq=getWaiting(d.id).length;
+    sel.innerHTML+=`<option value="${d.id}">${d.name} — ${d.specialty} · ${d.room} (${wq} waiting)</option>`;
+  });
+  document.getElementById('xfer-reason').value='';
+  document.getElementById('transferModal').classList.add('on');
+}
+function closeTransferModal(){document.getElementById('transferModal').classList.remove('on');_xferPid=_xferFromDoc=null}
+function confirmTransfer(){
+  const toDocId=document.getElementById('xfer-doc').value;
+  const reason=document.getElementById('xfer-reason').value;
+  if(!toDocId){showToast('⚠️','Select Doctor','Choose a target doctor.','warn');return}
+  const p=pts.find(x=>x.id==_xferPid);
+  const toDoc=getDoc(toDocId);
+  if(!p||!toDoc){closeTransferModal();return}
+  p.docId=toDocId;p.dr=toDoc.name+' ('+toDoc.room+')';
+  if(!Array.isArray(p.transfers))p.transfers=[];
+  p.transfers.push({at:Date.now(),fromDocId:_xferFromDoc,toDocId,reason:reason||'Not specified'});
+  closeTransferModal();updateWaitTimes();
+  showToast('🔁','Transferred',p.nm+' → '+toDoc.name+(reason?' ('+reason+')':''),'ok');
+  repaint();refreshTVStrip();
+}
+
+/* ── POPUP ─────────────────────────────────────────────────── */
+function showPopup(p,pos){
+  _popupPatientId=p.id;
+  const doc=getDoc(p.docId);
+  document.getElementById('pop-tok').textContent=p.tok;
+  document.getElementById('pop-nm').textContent=p.nm;
+  document.getElementById('pop-wait').textContent=p.emg?'🔴 Emergency — being prioritized':'Estimated wait: ~'+p.ewt+' minutes';
+  document.getElementById('pop-doc-s').textContent=doc?doc.name.split(' ')[1]:'—';
+  document.getElementById('pop-pos').textContent='#'+pos;
+  document.getElementById('pop-ewt').textContent='~'+p.ewt+'m';
+  const sym=document.getElementById('pop-sym');
+  if(p.symptomSpecialty){sym.style.display='flex';sym.innerHTML='<span style="font-size:12px">🧠</span><span>AI specialty: <strong>'+p.symptomSpecialty+'</strong></span>'}
+  else sym.style.display='none';
+  document.getElementById('popup').classList.add('on');
+}
+function closePopup(){document.getElementById('popup').classList.remove('on')}
+
+/* ── ADD DOCTOR ────────────────────────────────────────────── */
+function openAddDocModal(){
+  const r=document.getElementById('ad-room');
+  if(r&&!r.value)r.value='Room '+(doctors.length+1);
+  document.getElementById('ad-err').style.display='none';
+  document.getElementById('addDocModal').classList.add('on');
+  setTimeout(()=>document.getElementById('ad-name')?.focus(),200);
+}
+function closeAddDocModal(){
+  document.getElementById('addDocModal').classList.remove('on');
+  ['ad-name','ad-room'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});
+  document.getElementById('ad-cap').value='8';
+  document.getElementById('ad-emoji').value='👨‍⚕️';
+  document.getElementById('ad-spec').selectedIndex=0;
+  document.getElementById('ad-err').style.display='none';
+}
+function submitAddDoc(){
+  const name=document.getElementById('ad-name').value.trim();
+  const room=document.getElementById('ad-room').value.trim();
+  const specialty=document.getElementById('ad-spec').value;
+  const cap=parseInt(document.getElementById('ad-cap').value)||8;
+  const emoji=document.getElementById('ad-emoji').value.trim()||'👨‍⚕️';
+  const errEl=document.getElementById('ad-err');
+  function err(m){errEl.textContent=m;errEl.style.display='block'}
+  if(!name)return err('Doctor name is required.');
+  if(!room)return err('Room is required.');
+  if(doctors.find(d=>d.room.toLowerCase()===room.toLowerCase()))return err(room+' is already taken.');
+  doctors.push({id:'d'+Date.now(),name,room,emoji,specialty,maxCap:cap,status:'available',consulStart:null});
+  closeAddDocModal();updateWaitTimes();
+  showToast('✅','Doctor Added',name+' ('+specialty+') added.','ok');
+  repaint();
+}
+
+/* ── NAVIGATION ─────────────────────────────────────────────── */
+function go(btn,s){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.screen,.tv-screen').forEach(el=>el.classList.remove('on'));
+  const sc=document.getElementById('s-'+s);
+  if(sc)sc.classList.add('on');
+  repaint();
+  if(s==='tv'){refreshTVStrip();paintTVRooms();}
+}
+
+/* ── TOAST ──────────────────────────────────────────────────── */
+function showToast(icon,title,msg,type='info'){
+  const stack=document.getElementById('toastStack');
+  const div=document.createElement('div');
+  div.className='toast type-'+type;
+  div.innerHTML=`<div class="t-icon">${icon}</div><div><div class="t-title">${title}</div><div class="t-msg">${msg}</div></div>`;
+  stack.appendChild(div);
+  setTimeout(()=>{div.classList.add('fadeout');setTimeout(()=>div.remove(),320)},3800);
+}
+
+/* ── REPAINT ─────────────────────────────────────────────────── */
+function repaint(){
+  updateWaitTimes();
+  buildDocDropdown();
+  const active=document.querySelector('.tab.active')?.getAttribute('data-s')||'rec';
+  if(active==='rec')paintRec();
+  if(active==='doc')paintDocScreen();
+  if(active==='admin')paintAdmin();
+  if(active==='tv'){paintTV();paintTVRooms();}
+}
+
+function buildDocDropdown(){
+  const sel=document.getElementById('r-doc');
+  if(!sel)return;
+  sel.innerHTML='<option value="">— Auto-assign (AI recommended) —</option>';
+  doctors.forEach(d=>{
+    const load=getWaiting(d.id).length;
+    const st=d.status==='offline'?' [OFFLINE]':d.status==='overloaded'?' [FULL]':` (${load}/${d.maxCap})`;
+    sel.innerHTML+=`<option value="${d.id}" ${d.status==='offline'?'disabled':''}>${d.name} — ${d.room}${st}</option>`;
+  });
+}
+
+/* ── PAINT: RECEPTION ──────────────────────────────────────── */
+function paintRec(){
+  const wq=pts.filter(p=>p.s==='w');
+  document.getElementById('r-cnt').textContent=wq.length;
+  const tb=document.getElementById('r-tbody');
+  const vis=pts.filter(p=>p.s!=='done'&&p.s!=='cancelled');
+  if(!vis.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--app-muted);padding:28px;font-size:12px">No patients yet.</td></tr>';return}
+  tb.innerHTML=vis.map(p=>{
+    let sp='';
+    if(p.s==='w')sp='<span class="pill pill-wait">● Waiting</span>';
+    if(p.s==='ip')sp='<span class="pill pill-room">⏳ In Room</span>';
+    const fl=p.emg?'<span class="tag-emg">EMG</span>':p.sr?'<span class="tag-sr">SR</span>':'';
+    const cancelBtn=p.s==='w'?`<button class="action-btn-cancel" onclick="event.stopPropagation();openCancelModal(${p.id})" title="Cancel">✕</button>`:'—';
+    const specLabel=p.symptomSpecialty?`<div style="font-size:9px;color:var(--purple);margin-top:1px">🧠 ${p.symptomSpecialty}</div>`:'';
+    return`<tr>
+      <td><span class="q-tok">${p.tok}</span></td>
+      <td><div style="font-weight:500">${p.nm}</div><div style="font-size:10px;color:var(--app-muted)">${p.age} yrs</div></td>
+      <td style="color:var(--app-muted);font-size:11px">${p.cc}${specLabel}</td>
+      <td style="font-size:11px">${p.dr.split('(')[0].trim()}</td>
+      <td><span class="ai-score">${calcScore(p)}</span></td>
+      <td style="font-family:monospace;font-size:11px;color:var(--app-muted)">${p.s==='w'?'~'+p.ewt+'m':'—'}</td>
+      <td style="display:flex;gap:4px;align-items:center;padding-top:12px">${sp} ${fl}</td>
+      <td style="text-align:center">${cancelBtn}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── PAINT: TV ──────────────────────────────────────────────── */
+function paintTV(){
+  const wq=pts.filter(p=>p.s==='w').sort(cmpPts);
+  const done=pts.filter(p=>p.s==='done');
+  document.getElementById('tv-qcnt').textContent=wq.length+' patient'+(wq.length!==1?'s':'')+' waiting';
+  document.getElementById('tv-st1').textContent=pts.length;
+  document.getElementById('tv-st2').textContent=wq.length;
+  document.getElementById('tv-st3').textContent=done.length;
+  document.getElementById('tv-st4').textContent=wq.length?'~'+AVG+'m':'—';
+  document.getElementById('tv-st5').textContent=_cancelCount;
+  const qr=document.getElementById('tv-qrows');
+  if(!wq.length){qr.innerHTML='<div style="color:var(--t3);font-size:13px;text-align:center;padding:24px">Queue is clear 🎉</div>';return}
+  qr.innerHTML=wq.slice(0,10).map((p,i)=>{
+    const isE=p.emg,isN=i===0;
+    const rc=isE?'is-emg':isN?'is-next':'';
+    const tc=isE?'ce':isN?'cn':'';
+    const badge=isE?'<span class="tvq-badge emg">URGENT</span>':isN?'<span class="tvq-badge next">NEXT</span>':'<span class="tvq-badge num">~'+p.ewt+'m</span>';
+    return`<div class="tv-qrow ${rc}" style="animation-delay:${i*.07}s">
+      <div class="tvq-tok ${tc}">${p.tok}</div>
+      <div><div class="tvq-name">${p.nm}${p.sr?' (Sr.)':''}</div><div class="tvq-sub">${p.cc} · ${p.dr.split('(')[0].trim()}</div></div>
+      <div style="font-family:monospace;font-size:10px;color:var(--t3)">${p.age}y</div>
+      ${badge}
+    </div>`;
+  }).join('');
+  paintTVRooms();
+}
+
+/* ── PAINT: TV DOCTOR ROOMS GRID ─────────────────────────────── */
+function paintTVRooms(){
+  const wrap=document.getElementById('tv-doc-grid');
+  if(!wrap)return;
+  wrap.innerHTML=doctors.map((doc,i)=>{
+    const ip=pts.find(p=>p.s==='ip'&&p.docId===doc.id);
+    const waiting=getWaiting(doc.id);
+    const next=waiting[0]||null;
+    const wCount=waiting.length;
+    const isOff=doc.status==='offline';
+    const hasConsult=!!ip;
+
+    let timerStr='00:00';
+    if(ip&&ip.cal){
+      const sec=Math.floor((Date.now()-ip.cal)/1000);
+      timerStr=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');
+    }
+
+    const cardCls=isOff?'rc-off':hasConsult?'rc-active':'rc-idle';
+    const dotCls=isOff?'d-off':hasConsult?'d-on':'d-idle';
+    const statusTxt=isOff?'Offline':hasConsult?'In Consultation':'Available';
+    const statusColor=isOff?'var(--t3)':hasConsult?'var(--cyan)':'var(--green)';
+
+    return`<div class="tv-room-card ${cardCls}" style="animation-delay:${i*.08}s">
+      <div class="tv-rc-room">${doc.room}</div>
+      <div class="tv-rc-doc">${doc.emoji} ${doc.name}</div>
+      <div class="tv-rc-status-row">
+        <div class="tv-rc-dot ${dotCls}"></div>
+        <span class="tv-rc-status-txt" style="color:${statusColor}">${statusTxt}</span>
+      </div>
+      <div class="tv-rc-divider"></div>
+      ${ip?`
+        <div class="tv-rc-tok">${ip.tok}</div>
+        <div class="tv-rc-name">${ip.nm}${ip.sr?' · Sr.':ip.emg?' · 🔴':''}</div>
+        <div class="tv-rc-timer" id="tv-rc-timer-${doc.id}">${timerStr}</div>
+        <div class="tv-rc-divider"></div>
+        <div class="tv-rc-next">${next?'▶ Next: '+next.tok+' · '+next.nm.split(' ')[0]:'No more patients'}</div>
+      `:`
+        <div class="tv-rc-tok" style="color:var(--t3);opacity:.35">${isOff?'—':'—'}</div>
+        <div class="tv-rc-name" style="color:var(--t3)">${isOff?'Doctor offline':'Ready for next'}</div>
+        <div class="tv-rc-timer" style="color:var(--t3)" id="tv-rc-timer-${doc.id}">—</div>
+        <div class="tv-rc-divider"></div>
+        <div class="tv-rc-next">${next?wCount+' waiting · Next: '+next.tok:'Queue clear'}</div>
+      `}
+      <div class="tv-rc-queue-ct">${wCount} in queue</div>
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════════════════════════
+   TV DOCTOR ROOMS — instant update on callNext/markDone
+════════════════════════════════════════════════════════════ */
+function refreshTVStrip(){
+  // Keep legacy strip hidden, update the new rooms grid
+  paintTVRooms();
+}
+
+/* ── LIVE CONSULTATION TIMERS — surgically update timer text nodes ── */
+setInterval(()=>{
+  doctors.forEach(doc=>{
+    const ip=pts.find(p=>p.s==='ip'&&p.docId===doc.id);
+    // Update new room card timers
+    const el=document.getElementById('tv-rc-timer-'+doc.id);
+    if(el){
+      if(ip&&ip.cal){
+        const sec=Math.floor((Date.now()-ip.cal)/1000);
+        el.textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');
+      } else {
+        el.textContent='—';
+      }
+    }
+    // Legacy strip timer (hidden but kept for compatibility)
+    const el2=document.getElementById('ds-timer-'+doc.id);
+    if(el2){
+      if(ip&&ip.cal){
+        const sec=Math.floor((Date.now()-ip.cal)/1000);
+        el2.textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');
+      } else el2.textContent='—';
+    }
+  });
+},1000);
+
+/* ── CLOCK ──────────────────────────────────────────────────── */
+function tickClock(){
+  const now=new Date();
+  const hmsEl=document.getElementById('tv-hms');
+  const dEl=document.getElementById('tv-dstr');
+  if(hmsEl)hmsEl.textContent=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  if(dEl)dEl.textContent=now.toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+}
+setInterval(tickClock,1000);tickClock();
+
+/* ── PAINT: DOCTOR SCREEN ──────────────────────────────────── */
+function paintDocScreen(){
+  paintDocOverview();
+  paintDocDetail(activeDocId);
+}
+function paintDocOverview(){
+  const wrap=document.getElementById('docOverview');
+  if(!wrap)return;
+  wrap.innerHTML=doctors.map(d=>{
+    const waiting=getWaiting(d.id).length;
+    const pw=predWait(d.id);
+    const pct=Math.min(Math.round(waiting/d.maxCap*100),100);
+    const isOff=d.status==='offline';
+    const badgeCls=isOff?'dsb-off':d.status==='overloaded'?'dsb-over':waiting>0?'dsb-busy':'dsb-avail';
+    const stTxt=isOff?'OFFLINE':d.status==='overloaded'?'FULL':waiting>0?'BUSY':'AVAILABLE';
+    const fillCls=pct>=100?'over':pct>=75?'warn':'';
+    return`<div class="doc-ov-card ${d.id===activeDocId?'selected':''} ${d.status==='overloaded'?'overloaded':''}" onclick="selectDoc('${d.id}')">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div class="doc-avatar">${d.emoji}</div>
+        <div style="flex:1">
+          <div class="doc-ov-name">${d.name}</div>
+          <div class="doc-ov-room">${d.specialty} · ${d.room}</div>
+        </div>
+        <span class="doc-status-badge ${badgeCls}">${stTxt}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--app-surface);border-radius:8px;margin-bottom:8px">
+        <div><div style="font-size:24px;font-weight:700;color:var(--app-text)">${waiting}</div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--app-muted)">Waiting</div></div>
+        <div style="text-align:right"><div style="font-size:22px;font-weight:700;color:var(--app-text)">${d.maxCap}</div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--app-muted)">Capacity</div></div>
+      </div>
+      <div class="capacity-bar"><div class="capacity-fill ${fillCls}" style="width:${pct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:7px;font-size:10px;color:var(--app-muted)">
+        <span>~${pw}m predicted</span>
+        <button onclick="event.stopPropagation();toggleDocStatus('${d.id}')" style="font-size:10px;padding:1px 7px;border-radius:4px;border:1px solid var(--app-border);background:#fff;cursor:pointer;color:${isOff?'var(--green)':'var(--red)'};font-weight:600">
+          ${isOff?'Online':'Offline'}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function selectDoc(id){activeDocId=id;paintDocScreen()}
+function paintDocDetail(docId){
+  const doc=getDoc(docId);
+  if(!doc)return;
+  const wrap=document.getElementById('docDetail');
+  if(!wrap)return;
+  const ip=pts.find(p=>p.s==='ip'&&p.docId===docId);
+  const waiting=getWaiting(docId);
+  const done=pts.filter(p=>p.s==='done'&&p.docId===docId);
+  const emgs=pts.filter(p=>p.emg&&p.docId===docId).length;
+  const pw=predWait(docId);
+  const cpHTML=ip?`
+    <div class="cp-tok">${ip.tok}</div>
+    <div class="cp-nm">${ip.nm}</div>
+    <div class="cp-cc">${ip.cc}</div>
+    <div class="cp-meta">
+      <div><div class="cp-m-lab">Age</div><div class="cp-m-val">${ip.age} yrs</div></div>
+      <div><div class="cp-m-lab">Priority</div><div class="cp-m-val">${ip.emg?'🔴 EMG':ip.sr?'🟡 Senior':'Normal'}</div></div>
+      <div><div class="cp-m-lab">Called At</div><div class="cp-m-val">${ip.cal?new Date(ip.cal).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'—'}</div></div>
+      <div><div class="cp-m-lab">Doctor</div><div class="cp-m-val">${doc.name}</div></div>
+    </div>`:`
+    <div class="cp-tok" style="font-size:44px;opacity:.3">—</div>
+    <div class="cp-nm" style="margin-top:8px">No patient in consultation</div>
+    <div class="cp-cc">Click CALL NEXT to begin</div>`;
+
+  const wlHTML=waiting.length?waiting.slice(0,8).map((p,i)=>`
+    <div class="wl-row">
+      <div class="wl-pos">#${i+1}</div>
+      <div style="flex:1">
+        <div class="wl-nm">${p.nm} ${p.emg?'🔴':p.sr?'🟡':''}${p.symptomSpecialty?`<span style="font-size:9px;color:var(--purple);margin-left:3px">🧠${p.symptomSpecialty}</span>`:''}</div>
+        <div class="wl-cc">${p.cc}</div>
+      </div>
+      <span class="ai-score" style="font-size:8px;margin-right:3px">${calcScore(p)}</span>
+      <div class="wl-wt">~${p.ewt}m</div>
+      <button class="transfer-btn" onclick="event.stopPropagation();openTransferModal(${p.id},'${docId}')" title="Transfer">🔁</button>
+      <button class="cancel-btn-s" onclick="event.stopPropagation();openCancelModal(${p.id})" title="Cancel">✕</button>
+    </div>`).join(''):'<div style="text-align:center;color:var(--app-muted);font-size:12px;padding:18px">Queue is empty.</div>';
+
+  // AI allocation score bars
+  const ranked=doctors.filter(d=>d.status!=='offline').map(d=>{
+    const wq=getWaiting(d.id).length;
+    const ip2=pts.find(p=>p.s==='ip'&&p.docId===d.id);
+    const pen=ip2&&ip2.cal?Math.max(0,AVG-Math.floor((Date.now()-ip2.cal)/60000)):0;
+    const pw2=wq*AVG+pen;
+    const avScore=d.status==='available'?100:d.status==='busy'?60:10;
+    const loadNorm=Math.min((wq/Math.max(d.maxCap,1))*100,100);
+    const waitNorm=Math.min((pw2/60)*100,100);
+    const score=Math.round(0.35*avScore-0.20*loadNorm-0.15*waitNorm);
+    return{d,score,pw:pw2};
+  }).sort((a,b)=>b.score-a.score);
+  const maxScore=Math.max(...ranked.map(r=>r.score),1);
+  const scoreHTML=ranked.map(r=>{
+    const pct=Math.max(0,Math.round((r.score/maxScore)*100));
+    const isMe=r.d.id===docId;
+    const isBest=r.d.id===ranked[0].d.id;
+    const barColor=isMe?'var(--cyan2)':isBest?'var(--green)':'var(--app-border)';
+    return`<div style="margin-bottom:9px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+        <span style="font-size:10px;font-weight:${isMe?600:400};color:${isMe?'var(--app-text)':'var(--app-muted)'}">${r.d.name}${isMe?' (this)':''}${isBest&&!isMe?' ★':''}</span>
+        <span style="font-family:monospace;font-size:9px;color:var(--app-muted)">${r.score}pts · ~${r.pw}m</span>
+      </div>
+      <div style="height:4px;border-radius:2px;background:var(--app-border);overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${barColor};border-radius:2px;transition:width .5s"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  wrap.innerHTML=`
+    <div>
+      <div class="cp-card">
+        <div class="cp-eye">Currently Consulting — ${doc.name}</div>
+        ${cpHTML}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+        <button class="btn-next-big" onclick="callNext('${docId}')">▶ CALL NEXT</button>
+        <button class="btn-mark-done" onclick="markDone('${docId}')">✓ Mark Done</button>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="card-hd">
+          <div class="card-title"><div class="cdot c-blue"></div>Waiting for ${doc.name}</div>
+          <span style="font-size:16px;font-weight:700;color:var(--cyan2);background:rgba(0,184,158,.08);border:1px solid rgba(0,184,158,.18);padding:2px 10px;border-radius:6px">${waiting.length}</span>
+        </div>
+        <div style="font-size:10px;color:var(--app-muted);margin-bottom:8px;opacity:.7">Hover a row → 🔁 transfer · ✕ cancel</div>
+        <div style="display:flex;flex-direction:column;gap:6px">${wlHTML}</div>
+        ${waiting.length>8?`<div style="margin-top:8px;font-size:11px;color:var(--app-muted)">+ ${waiting.length-8} more patients not shown.</div>`:''}
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card">
+        <div class="card-hd"><div class="card-title"><div class="cdot c-cyan"></div>Today's Stats</div></div>
+        <div class="d-stat-grid">
+          <div class="d-stat"><div class="d-stat-v" style="color:var(--cyan2)">${done.length}</div><div class="d-stat-l">Done</div></div>
+          <div class="d-stat"><div class="d-stat-v" style="color:var(--amber)">${waiting.length}</div><div class="d-stat-l">Waiting</div></div>
+          <div class="d-stat"><div class="d-stat-v" style="color:var(--blue)">~${pw}m</div><div class="d-stat-l">Predicted Wait</div></div>
+          <div class="d-stat"><div class="d-stat-v" style="color:var(--red)">${emgs}</div><div class="d-stat-l">Emergency</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd" style="margin-bottom:10px"><div class="card-title"><div class="cdot c-purple"></div>AI Allocation Scores</div></div>
+        ${scoreHTML}
+        <div style="font-size:9px;color:var(--app-muted);margin-top:4px;line-height:1.5">Formula: availability + specialization − queue load − wait penalty</div>
+      </div>
+      <div class="card">
+        <div class="card-hd" style="margin-bottom:10px"><div class="card-title"><div class="cdot c-amber"></div>Doctor Info</div></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:4px 0">
+          <div class="doc-avatar">${doc.emoji}</div>
+          <div><div style="font-size:14px;font-weight:600">${doc.name}</div><div style="font-size:11px;color:var(--app-muted)">${doc.specialty} · ${doc.room}</div></div>
+        </div>
+        <div style="margin-top:12px;padding:10px;background:var(--app-surface);border-radius:8px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:10px;color:var(--app-muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px">Queue Capacity</span>
+            <span style="font-size:12px;font-weight:700">${waiting.length}/${doc.maxCap}</span>
+          </div>
+          <div class="capacity-bar"><div class="capacity-fill ${waiting.length>=doc.maxCap?'over':waiting.length>=doc.maxCap*.75?'warn':''}" style="width:${Math.min(waiting.length/doc.maxCap*100,100)}%"></div></div>
+        </div>
+        <button onclick="toggleDocStatus('${docId}')" style="margin-top:10px;width:100%;padding:8px;border-radius:7px;border:1.5px solid var(--app-border);background:#fff;cursor:pointer;font-weight:600;font-size:12px;color:${doc.status==='offline'?'var(--green)':'var(--red)'};transition:all .15s">
+          ${doc.status==='offline'?'✅ Set Online':'🔴 Set Offline'}
+        </button>
+      </div>
+    </div>`;
+}
+
+/* ── PAINT: ADMIN ────────────────────────────────────────────── */
+function paintAdmin(){
+  const wq=pts.filter(p=>p.s==='w');
+  const done=pts.filter(p=>p.s==='done');
+  const emg=pts.filter(p=>p.emg);
+  document.getElementById('a-tot').textContent=pts.length;
+  document.getElementById('a-dn').textContent=done.length;
+  document.getElementById('a-wt').textContent=wq.length;
+  document.getElementById('a-emg').textContent=emg.length;
+  document.getElementById('a-cancel').textContent=_cancelCount;
+  const tb=document.getElementById('a-tbody');
+  if(!pts.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--app-muted);padding:24px">No records.</td></tr>';return}
+  tb.innerHTML=pts.map(p=>{
+    const sc=p.s==='done'?'pill-done':p.s==='ip'?'pill-room':p.s==='cancelled'?'':'pill-wait';
+    const sl=p.s==='done'?'Done':p.s==='ip'?'In Room':p.s==='cancelled'?'Cancelled':'Waiting';
+    const fl=p.emg?'<span class="tag-emg">EMG</span>':p.sr?'<span class="tag-sr">SR</span>':'—';
+    return`<tr>
+      <td><strong style="font-size:14px">${p.tok}</strong></td>
+      <td>${p.nm}</td><td>${p.age}</td>
+      <td style="color:var(--app-muted);font-size:10px">${p.cc}</td>
+      <td style="font-size:10px">${p.dr.split('(')[0].trim()}</td>
+      <td><span class="ai-score">${calcScore(p)}</span></td>
+      <td>${fl}</td>
+      <td><span class="pill ${sc}" style="${p.s==='cancelled'?'background:rgba(107,122,153,.1);color:#6b7280':''}">
+        ${sl}</span></td>
+      <td style="font-family:monospace;font-size:9px;color:var(--app-muted)">${new Date(p.reg).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</td>
+    </tr>`;
+  }).join('');
+  // Hourly bars
+  const hrs=Array.from({length:9},(_,i)=>i+9);
+  const hc=hrs.map(h=>pts.filter(p=>new Date(p.reg).getHours()===h).length);
+  const mx=Math.max(...hc,1);
+  document.getElementById('a-bars').innerHTML=hrs.map((h,i)=>{
+    const pct=Math.round(hc[i]/mx*100);
+    const lbl=h>12?(h-12)+'pm':h+'am';
+    return`<div class="bar-w"><div class="bar-b" style="height:${Math.max(pct,3)}%"></div><div class="bar-l">${lbl}</div></div>`;
+  }).join('');
+  // Heatmap
+  document.getElementById('a-heatmap').innerHTML=doctors.map(doc=>{
+    const wq2=getWaiting(doc.id).length;
+    const pw2=predWait(doc.id);
+    const pct2=Math.min(100,Math.round(wq2/Math.max(doc.maxCap,1)*100));
+    const hcls=pct2>=90||pw2>=60?'heat-high':pct2>=60||pw2>=35?'heat-med':'heat-low';
+    return`<div class="heatmap-row">
+      <div><div class="heatmap-doc">${doc.name}</div><div class="heatmap-sub">${wq2}/${doc.maxCap} · ~${pw2}m</div></div>
+      <div class="${hcls}">${pct2}%</div>
+    </div>`;
+  }).join('');
+  // Cancel analytics
+  const ca=document.getElementById('cancel-analytics');
+  if(!cancellationLog.length){ca.innerHTML='<div style="font-size:11px;color:var(--app-muted);text-align:center;padding:10px">No cancellations yet.</div>';return}
+  const rate=Math.round(_cancelCount/pts.length*100);
+  const avg=Math.round(cancellationLog.reduce((s,e)=>s+e.waitedMin,0)/cancellationLog.length);
+  const byDoc={};cancellationLog.forEach(e=>{byDoc[e.doctorName]=(byDoc[e.doctorName]||0)+1});
+  ca.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div style="background:var(--app-surface);border-radius:7px;padding:9px;text-align:center">
+        <div style="font-size:22px;font-weight:700;color:var(--red)">${_cancelCount}</div>
+        <div style="font-size:9px;color:var(--app-muted);text-transform:uppercase;letter-spacing:.4px">Cancelled</div>
+      </div>
+      <div style="background:var(--app-surface);border-radius:7px;padding:9px;text-align:center">
+        <div style="font-size:22px;font-weight:700;color:var(--amber)">${rate}%</div>
+        <div style="font-size:9px;color:var(--app-muted);text-transform:uppercase;letter-spacing:.4px">Cancel Rate</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--app-muted);margin-bottom:8px">Avg wait before cancel: <strong style="color:var(--app-text)">${avg}m</strong></div>
+    ${Object.entries(byDoc).map(([name,count])=>`
+      <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--app-border);font-size:11px">
+        <span>${name}</span><span style="font-family:monospace;color:var(--red)">${count} cancelled</span>
+      </div>`).join('')}`;
+}
+
+/* ── CLEAR / NUKE / CSV ────────────────────────────────────── */
+function clearDone(){pts=pts.filter(p=>p.s!=='done');repaint()}
+function nuke(){if(confirm('Reset ALL data?')){pts=[];tok=1;_cancelCount=0;cancellationLog.length=0;updateWaitTimes();repaint();showToast('🗑','Reset','All data cleared.','warn')}}
+function expCSV(){
+  if(!pts.length){alert('No data.');return}
+  const h=['Token','Name','Age','Description','Doctor','Score','Emergency','Senior','Status','Registered'];
+  const r=pts.map(p=>[p.tok,p.nm,p.age,p.cc,p.dr,calcScore(p),p.emg?'Yes':'No',p.sr?'Yes':'No',p.s,new Date(p.reg).toLocaleString()]);
+  const csv=[h,...r].map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='queueflow_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
+
+/* ── PERIODIC SYNC ─────────────────────────────────────────── */
+setInterval(()=>{
+  updateWaitTimes();
+  const active=document.querySelector('.tab.active')?.getAttribute('data-s')||'rec';
+  if(active==='tv'){paintTV();paintTVRooms();}
+  if(active==='rec')paintRec();
+  if(active==='doc')paintDocScreen();
+  if(active==='admin')paintAdmin();
+},5000);
+
+/* ── SEED DATA ──────────────────────────────────────────────── */
+(function seed(){
+  const now=Date.now();
+  const demo=[
+    {nm:'Priya Venkataraman',age:34,cc:'Fever & Cold',          docId:'d1',emg:false,sr:false,s:'ip'},
+    {nm:'Arjun Krishnan',    age:28,cc:'Chest pain, dizzy',     docId:'d3',emg:true, sr:false,s:'w'},
+    {nm:'Suresh Kumar',      age:67,cc:'BP Check',              docId:'d1',emg:false,sr:true, s:'w'},
+    {nm:'Meena Devi',        age:45,cc:'Back Pain',             docId:'d2',emg:false,sr:false,s:'w'},
+    {nm:'Lakshmi Narayanan', age:72,cc:'Diabetes Review',       docId:'d2',emg:false,sr:true, s:'w'},
+    {nm:'Kavitha Murthy',    age:52,cc:'Migraine',              docId:'d3',emg:false,sr:false,s:'ip'},
+    {nm:'Dinesh Balaji',     age:41,cc:'Eye Irritation',        docId:'d3',emg:false,sr:false,s:'w'},
+    {nm:'Rekha Sundaram',    age:8, cc:'Ear pain, child',       docId:'d4',emg:false,sr:false,s:'w'},
+    {nm:'Mohan Pillai',      age:60,cc:'Knee pain',             docId:'d4',emg:false,sr:true, s:'ip'},
+    {nm:'Ravi Chandran',     age:38,cc:'Stomach Ache',          docId:'d1',emg:false,sr:false,s:'done'},
+  ];
+  demo.forEach((d,i)=>{
+    const doc=getDoc(d.docId);
+    pts.push({...d,
+      id:Date.now()+i,tok:'A-'+String(tok++).padStart(2,'0'),
+      reg:now-(55-i*5)*60000,
+      cal:['ip','done'].includes(d.s)?now-(45-i*5)*60000:null,
+      done:d.s==='done'?now-(30-i*5)*60000:null,
+      ewt:0,priorityBoost:0,
+      symptomSpecialty:null,cancelledAt:null,cancelReason:null,transfers:[],
+      dr:doc?doc.name+' ('+doc.room+')':'Unassigned'
+    });
+  });
+  updateWaitTimes();
+  repaint();
+  setTimeout(()=>{refreshTVStrip();paintTVRooms();},200);
+})();
+</script>
+</body>
+</html>
