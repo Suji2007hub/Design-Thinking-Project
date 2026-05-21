@@ -1,7 +1,7 @@
 # QueueFlow Agent Pro (Smart Hospital Queue Assistant)
 
 ## Project Description
-QueueFlow Agent Pro is an AI-powered outpatient queue management system that helps reception staff register patients, supports doctors with organized live queues, gives admin-level monitoring, and provides a TV display view for real-time patient token flow and updates.
+QueueFlow Agent Pro is a JavaScript-based outpatient queue management system with built-in intelligent, rule-based agents that help reception staff register patients, support doctors with organized live queues, provide admin-level monitoring, and power a TV display view for real-time token flow and updates.
 
 ## Problem It Solves
 - Reduces long waiting times in outpatient clinics.
@@ -20,15 +20,16 @@ QueueFlow Agent Pro is an AI-powered outpatient queue management system that hel
 - JavaScript
 
 ## Project Structure
-- `index.html` — Main UI for queue flow and role-based screens
+- `index.html` — Primary entry point (recommended main UI)
 - `app.js` — Core logic, agent behavior, and queue handling
 - `styles.css` — Styling and UI design tokens
-- `program.html` — Alternate/extended UI version
+- `program.html` — Alternate/extended UI variant
 
 ## How to Run
 1. Clone or download this repository.
-2. Open `index.html` in your browser.  
-   (Optional: use VS Code Live Server for a smoother local run.)
+2. Open `index.html` in your browser (recommended default entry).  
+   You can also open `program.html` to view the alternate UI variant.
+3. (Optional) Use VS Code Live Server for a smoother local run.
 
 ## Future Improvements
 - Backend integration for persistent data
